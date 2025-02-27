@@ -5,10 +5,11 @@ from urllib.parse import urljoin, urlparse
 
 # Set of visited URLs to avoid duplicates
 visited_urls = set()
+scraped_data = []  # Store scraped content
 
 def scrape_website(url, base_url, depth=1, max_depth=3):
     if url in visited_urls or depth > max_depth:
-        return {}
+        return
 
     print(f"Scraping: {url}")
     visited_urls.add(url)
@@ -17,16 +18,21 @@ def scrape_website(url, base_url, depth=1, max_depth=3):
         response = requests.get(url, timeout=10)
         if response.status_code != 200:
             print(f"Failed to fetch {url}: {response.status_code}")
-            return {}
+            return
 
         soup = BeautifulSoup(response.text, "html.parser")
 
+        # Extract page content
         content = {
             "url": url,
             "title": soup.title.string if soup.title else "No Title",
             "text": " ".join([p.text.strip() for p in soup.find_all("p")])[:1000],
         }
 
+        # Save the extracted content
+        scraped_data.append(content)
+
+        # Find and scrape internal links
         links = []
         for a_tag in soup.find_all("a", href=True):
             link = urljoin(base_url, a_tag["href"])
@@ -36,11 +42,8 @@ def scrape_website(url, base_url, depth=1, max_depth=3):
         for link in links:
             scrape_website(link, base_url, depth + 1, max_depth)
 
-        return content
-
     except requests.exceptions.RequestException as e:
         print(f"Error scraping {url}: {e}")
-        return {}
 
 def is_valid_internal_link(link, base_url):
     parsed_link = urlparse(link)
@@ -48,9 +51,13 @@ def is_valid_internal_link(link, base_url):
     return parsed_link.netloc == parsed_base.netloc and link not in visited_urls
 
 BASE_URL = "https://www.n60.ai/"
-scraped_data = scrape_website(BASE_URL, BASE_URL)
 
+# Start scraping
+scrape_website(BASE_URL, BASE_URL)
+
+# Save extracted data to JSON
 with open("scraped_data.json", "w", encoding="utf-8") as f:
-    json.dump(list(visited_urls), f, indent=4, ensure_ascii=False)
+    json.dump(scraped_data, f, indent=4, ensure_ascii=False)
 
-print("Scraping complete. Data saved to scraped_data.json.")
+print("✅ Scraping complete. Data saved to scraped_data.json.")
+
