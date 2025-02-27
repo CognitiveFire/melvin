@@ -6,18 +6,16 @@ import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlparse
 
-# Load the scraper-specific OpenAI API key from environment variables
-scraper_api_key = os.getenv("SCRAPER_OPENAI_API_KEY")
+scraper_api_key = os.getenv("OPENAI_API_KEY")
 if not scraper_api_key:
-    raise ValueError("❌ Missing OpenAI API key for web scraper!")
+    raise ValueError("❌ Missing OpenAI API key! Set it using environment variables.")
 
 openai.api_key = scraper_api_key
 
-# Set of visited URLs to avoid duplicates
+
 visited_urls = set()
 
-# Function to scrape a webpage and find internal links
-def scrape_website(url, base_url, depth=1, max_depth=2):
+def scrape_website(url, base_url, depth=1, max_depth=3):
     if url in visited_urls or depth > max_depth:
         return {}
 
@@ -36,7 +34,7 @@ def scrape_website(url, base_url, depth=1, max_depth=2):
         content = {
             "url": url,
             "title": soup.title.string if soup.title else "No Title",
-            "text": " ".join([p.text.strip() for p in soup.find_all("p")])[:2000],  # Limit text length
+            "text": " ".join([p.text.strip() for p in soup.find_all("p")])[:1000],
         }
 
         # Find all internal links
