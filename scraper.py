@@ -6,17 +6,6 @@ import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlparse
 
-# Load the scraper-specific OpenAI API key from environment variables
-scraper_api_key = os.getenv("OPENAI_API_KEY")
-if not scraper_api_key:
-    raise ValueError("❌ Missing OpenAI API key! Set it using environment variables.")
-
-openai.api_key = scraper_api_key
-
-
-openai.api_key = scraper_api_key
-
-# Set of visited URLs to avoid duplicates
 visited_urls = set()
 
 # Function to scrape a webpage and find internal links
@@ -80,6 +69,12 @@ with open("scraped_data.json", "w", encoding="utf-8") as f:
     json.dump(list(visited_urls), f, indent=4, ensure_ascii=False)
 
 print("Scraping complete. Data saved to scraped_data.json.")
+
+# Keep the scraper running in a loop (so Railway doesn't think it crashed)
+while True:
+    print("Waiting for the next scraping cycle (24 hours)...")
+    time.sleep(86400)  # Wait for 24 hours before running again
+    scrape_website(BASE_URL, BASE_URL)
 
 # Keep the scraper running in a loop (so Railway doesn't think it crashed)
 while True:
