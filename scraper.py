@@ -79,3 +79,48 @@ formatted = response.choices[0].message.content
 with open("formatted_data.json", "w", encoding="utf-8") as f:
     json.dump(formatted, f, indent=4, ensure_ascii=False)
 print("Formatted data saved to formatted_data.json")
+
+import json
+import openai
+import os
+from datetime import datetime  # Add this
+
+# Your scraper code here
+# ...
+
+# Save extracted data to JSON
+with open("scraped_data.json", "w", encoding="utf-8") as f:
+    json.dump(scraped_data, f, indent=4, ensure_ascii=False)
+print("✅ Scraping complete. Data saved to scraped_data.json.")
+
+import json
+import openai
+import os
+from datetime import datetime  # Add this
+
+# Your scraper code here
+# ...
+
+# Save extracted data to JSON
+with open("scraped_data.json", "w", encoding="utf-8") as f:
+    json.dump(scraped_data, f, indent=4, ensure_ascii=False)
+print("✅ Scraping complete. Data saved to scraped_data.json.")
+
+# Formatter
+print("Starting formatter...")
+client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+with open("scraped_data.json", "r", encoding="utf-8") as f:
+    raw_data = json.load(f)
+response = client.chat.completions.create(
+    model="gpt-4",
+    messages=[{"role": "user", "content": f"Format this data into a readable summary: {raw_data}"}]
+)
+formatted = response.choices[0].message.content
+# Add timestamp to output
+output = {
+    "timestamp": datetime.now().isoformat(),  # e.g., "2025-02-28T09:16:00"
+    "formatted_data": formatted
+}
+with open("formatted_data.json", "w", encoding="utf-8") as f:
+    json.dump(output, f, indent=4, ensure_ascii=False)
+print("Formatted data saved to formatted_data.json")
