@@ -99,9 +99,18 @@ import os
 from datetime import datetime  # Add this
 
 # Your scraper code here
-# ...
 
 # Save extracted data to JSON
+
+
+import json
+import openai
+import os
+import subprocess
+from datetime import datetime
+
+# Scraper code
+# ...
 with open("scraped_data.json", "w", encoding="utf-8") as f:
     json.dump(scraped_data, f, indent=4, ensure_ascii=False)
 print("✅ Scraping complete. Data saved to scraped_data.json.")
@@ -116,11 +125,16 @@ response = client.chat.completions.create(
     messages=[{"role": "user", "content": f"Format this data into a readable summary: {raw_data}"}]
 )
 formatted = response.choices[0].message.content
-# Add timestamp to output
 output = {
-    "timestamp": datetime.now().isoformat(),  # e.g., "2025-02-28T09:16:00"
+    "timestamp": datetime.now().isoformat(),
     "formatted_data": formatted
 }
 with open("formatted_data.json", "w", encoding="utf-8") as f:
     json.dump(output, f, indent=4, ensure_ascii=False)
 print("Formatted data saved to formatted_data.json")
+
+# Commit and push to GitHub
+subprocess.run(["git", "add", "formatted_data.json"], check=True)
+subprocess.run(["git", "commit", "-m", "Updated formatted_data.json with timestamp"], check=True)
+subprocess.run(["git", "push", "origin", "main"], check=True)
+print("Pushed formatted_data.json to GitHub")
