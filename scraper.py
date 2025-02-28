@@ -60,4 +60,22 @@ with open("scraped_data.json", "w", encoding="utf-8") as f:
     json.dump(scraped_data, f, indent=4, ensure_ascii=False)
 
 print("✅ Scraping complete. Data saved to scraped_data.json.")
+import json
+import openai
+import os
 
+
+
+# Formatter
+print("Starting formatter...")
+client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))  # New client
+with open("scraped_data.json", "r", encoding="utf-8") as f:
+    raw_data = json.load(f)
+response = client.chat.completions.create(  # New API call
+    model="gpt-4",
+    messages=[{"role": "user", "content": f"Format this data into a readable summary: {raw_data}"}]
+)
+formatted = response.choices[0].message.content
+with open("formatted_data.json", "w", encoding="utf-8") as f:
+    json.dump(formatted, f, indent=4, ensure_ascii=False)
+print("Formatted data saved to formatted_data.json")
